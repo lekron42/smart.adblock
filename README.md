@@ -1,2 +1,2 @@
 # smart.adblock
-Hosts files based on BenBaltz' files with a few fixes
+Hosts files based on [BenBaltz](https://github.com/BenBaltz)' files with a few fixes for better compatibility with Samsung SmartTvs
