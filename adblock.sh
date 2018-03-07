@@ -290,7 +290,7 @@ case $advanced in
 esac
 }
 
-downloadSamyGO(){
+downSamyGO(){
 if [ ! -e /mnt/opt/privateer/usr/bin/samyGOso ]; then
 		echo -n "Downloading samyGOso extension.. "
 		curl -kso /tmp/samyGOso.gz "https://raw.githubusercontent.com/lekron42/smart.adblock/master/samyGOso.gz"
@@ -313,7 +313,7 @@ downAlert(){
 clear
 echo $divider
 if [ ! -e /mnt/opt/privateer/usr/libso/libAlert.so ]; then
-	downloadSamyGO					#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+	downSamyGO
 	echo -n "Downloading libAlert.. "
 	curl -kso /tmp/libAlert.so.gz "https://raw.githubusercontent.com/lekron42/smart.adblock/master/libAlert.so.gz"
 	echo "Done!"
@@ -346,7 +346,7 @@ downText(){
 clear
 echo $divider
 if [ ! -e /mtd_rwcommon/libText.so ] || [ ! -e /mtd_rwcommon/font1.raw ] || [ ! -e /mtd_rwcommon/font2.raw ] || [ ! -e /mtd_rwcommon/font3.raw ] || [ ! -e /mtd_rwcommon/font4.raw ]; then
-	downloadSamyGO							#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+	downSamyGO
 	echo -n "Downloading libText.. "
 	curl -kso /tmp/libText.tar.gz "https://raw.githubusercontent.com/lekron42/smart.adblock/master/libText.tar.gz"
 	echo "Done!"
@@ -425,7 +425,6 @@ fi
 isActive(){
 hosts_size=$(wc -c </etc/hosts)
 if [ $hosts_size -gt 500 ]; then
-	#echo "Already mounted hosts file detected!"
 	echo -n "Unmounting current /etc/hosts.. "
 	/bin/umount /etc/hosts
 	sleep 0.1
@@ -440,7 +439,6 @@ echo "=================================="
 echo "Checking for Update, please wait.."
 echo "=================================="
 filepath="$(dirname $(readlink -f $0))/$(basename $0)"
-#version=$(cat $filepath | grep "[V]ersion:" | cut -d: -f 2)
 version=$(grep "[V]ersion:" $filepath | cut -d: -f 2)
 mainv=$(echo $version | cut -d. -f 1)
 subv=$(echo $version | cut -d. -f 2)
@@ -456,17 +454,17 @@ if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt 
 	case $yn in
 		y|Y)
 			curl -kso /tmp/new_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/adblock.sh"
-			mv /tmp/new_version $filepath		#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+			mv /tmp/new_version $filepath
 			echo "Update was successful! Please re-run the script.."
 			exit 0
 			;;
 		*)
 			;;
 	esac
-	called_from_extras = 0	#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+	called_from_extras=0
 else
 	if [ $called_from_extras -eq 1 ]; then
-		called_from_extras = 0
+		called_from_extras=0
 		echo "You already have the newest version installed!"
 		sleep 1
 	fi
@@ -482,28 +480,25 @@ echo "-                              Extras                             -"
 echo $divider
 echo "1) Check for updates"
 echo $divider
-echo "2) Blacklist hosts"
+echo "2) Download & install libAlert"
+echo "3) Download & install libText"
 echo $divider
-echo "3) Download & install libAlert"
-echo "4) Download & install libText"
+echo "4) Delete libAlert"
+echo "5) Delete libText"
 echo $divider
-echo "5) Delete libAlert"
-echo "6) Delete libText"
-echo $divider
-echo "7) Main menu"
-echo "8) Exit"
+echo "6) Main menu"
+echo "7) Exit"
 echo $divider
 echo -n "Choice: " && read choice 
 
 case $choice in
 1) called_from_extras=1; checkUpdate; extras;;
-2) blacklist; extras;;
-3) downAlert; extras;;
-4) downText; extras;;
-5) delAlert;;
-6) delText;;
-7) main_menu;;
-8) clear; exit;;
+2) downAlert; extras;;
+3) downText; extras;;
+4) delAlert;;
+5) delText;;
+6) main_menu;;
+7) clear; exit;;
 *) clear; echo $divider; echo "Invalid option. Please choose another number."; echo $divider; sleep 1.5; extras;;
 esac
 }
@@ -540,11 +535,9 @@ echo $divider
 echo -n "13) Exit"
 testvar=$(grep -c "/etc/hosts" /proc/mounts)
 if [ $testvar -gt 0 ]; then
-	#echo "                                          [Hosts: Mounted!]"
-	echo "											[Hosts: Mounted!]"
+	echo "                                          [Hosts: Mounted!]"
 else
-	#echo "                                        [Hosts: Unmounted!]"
-	echo "										  [Hosts: Unmounted!]"
+	echo "                                        [Hosts: Unmounted!]"
 fi
 echo $divider
 echo -n "Your choice: " && read num
@@ -598,47 +591,6 @@ case $choice in
 	2) exit 0;;
 	*) main_menu;;
 esac
-}
-
-blacklist(){
-	clear
-	if [ ! -e /mtd_rwarea/hosts ]; then
-		echo $divider
-		echo "You don't have adblocking activated. Please choose one of the other options and try again!"
-		echo $divider
-		sleep 2
-	else
-		FIRSTBL=$(grep -c "# Own blocked hosts" /mtd_rwarea/hosts)
-		echo $divider
-		echo "Which host do you want to block? E.g google.com"
-		echo -n "Host: " && read BLACKL
-		echo $divider
-		isActive						#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
-		echo -n "Adding host to /mtd_rwarea/hosts.. "
-		if [ $FIRSTBL -eq 1 ]; then
-			echo "0.0.0.0 $BLACKL" >> /mtd_rwarea/hosts
-		else
-			echo "# Own blocked hosts" >> /mtd_rwarea/hosts
-			echo "0.0.0.0 $BLACKL" >> /mtd_rwarea/hosts
-		fi
-		echo "Done!"
-		echo $divider
-		echo -n "Mounting new hosts file to /etc/hosts.. "
-		sleep 0.4
-		/bin/mount -o bind /mtd_rwarea/hosts /etc/hosts
-		echo "Done!"
-		sleep 1
-		echo $divider
-		echo "1) Add another entry"
-		echo "2) Main Menu"
-		echo "3) Exit"
-		echo -n "Choice: " && read choice
-		case $choice in
-			1) blacklist;;
-			3) clear; exit 0;;
-			*) main_menu;;
-		esac
-	fi
 }
 
 process(){
@@ -784,8 +736,9 @@ esac
 }
 
 clear
-called_from_extras = 0
+called_from_extras=0
 checkUpdate
 while true; do
+	lightweight=0
 	main_menu
 done
