@@ -4,7 +4,7 @@
 # Created by lekron @ SamyGO Forums
 #----------------------------------------------------
 # Version:4.0
-# Date:01/16/2018
+# Date:03/07/2018
 #----------------------------------------------------
 # Credit goes to Github user BenBaltz who
 # created the original hosts files!
