@@ -3,7 +3,7 @@
 # This script helps you to block ads on your SmartTv
 # Created by lekron @ SamyGO Forums
 #----------------------------------------------------
-# Version:4.1
+# Version:4.0
 # Date:01/16/2018
 #----------------------------------------------------
 # Credit goes to Github user BenBaltz who
@@ -13,9 +13,13 @@
 # please contact me on SamyGO forums
 #----------------------------------------------------
 divider="-------------------------------------------------------------------"
-called_from_extras = 0
-							#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG vllt active profile eintrag anstatt mit eigener datei per ">> /mtd_rwarea/hosts" anhängen und durch grep/awk auslesen
-createInit(){	#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+
+appendActiveProfile(){
+echo "" >> /mtd_rwarea/hosts
+echo "#Active_profile:$AP" >> /mtd_rwarea/hosts
+}
+
+createInit(){
 echo $divider
 echo -n "Creating init.d script.. "
 echo "#!/bin/sh
@@ -436,7 +440,8 @@ echo "=================================="
 echo "Checking for Update, please wait.."
 echo "=================================="
 filepath="$(dirname $(readlink -f $0))/$(basename $0)"
-version=$(cat $filepath | grep "[V]ersion:" | cut -d: -f 2)
+#version=$(cat $filepath | grep "[V]ersion:" | cut -d: -f 2)
+version=$(grep "[V]ersion:" $filepath | cut -d: -f 2)
 mainv=$(echo $version | cut -d. -f 1)
 subv=$(echo $version | cut -d. -f 2)
 curl -kso /tmp/current_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/current_version"
@@ -445,22 +450,19 @@ if [ -e /tmp/current_version ]; then
 	currentSub=$(cat /tmp/current_version | cut -d. -f 2)
 	rm /tmp/current_version
 fi
-#if [[ ($mainv -eq $currentMain && $subv -lt $currentSub) || $mainv -lt $currentMain ]]; then
-if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt $currentMain ]; then	#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
-	#if [ $subv -lt $currentSub ]; then
-		echo "There is a new version avalailable ($currentMain\.$currentSub)! Download now? (y/n)"	#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
-		echo -n "Choice: " && read yn
-		case $yn in
-			y|Y)
-				curl -kso /tmp/new_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/adblock.sh"
-				mv /tmp/new_version $filepath		#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
-				echo "Update was successful! Please re-run the script.."
-				exit 0
-				;;
-			*)
-				;;
-		esac
-	#fi
+if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt $currentMain ]; then
+	echo "There is a new version avalailable ($mainv.$subv -> $currentMain.$currentSub)! Download now? (y/n)"
+	echo -n "Choice: " && read yn
+	case $yn in
+		y|Y)
+			curl -kso /tmp/new_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/adblock.sh"
+			mv /tmp/new_version $filepath		#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+			echo "Update was successful! Please re-run the script.."
+			exit 0
+			;;
+		*)
+			;;
+	esac
 	called_from_extras = 0	#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
 else
 	if [ $called_from_extras -eq 1 ]; then
@@ -481,29 +483,27 @@ echo $divider
 echo "1) Check for updates"
 echo $divider
 echo "2) Blacklist hosts"
-echo "3) Whitelist hosts"
 echo $divider
-echo "4) Download & install libAlert"
-echo "5) Download & install libText"
+echo "3) Download & install libAlert"
+echo "4) Download & install libText"
 echo $divider
-echo "6) Delete libAlert"
-echo "7) Delete libText"
+echo "5) Delete libAlert"
+echo "6) Delete libText"
 echo $divider
-echo "8) Main menu"
-echo "9) Exit"
+echo "7) Main menu"
+echo "8) Exit"
 echo $divider
 echo -n "Choice: " && read choice 
 
 case $choice in
 1) called_from_extras=1; checkUpdate; extras;;
 2) blacklist; extras;;
-3) echo "Coming soon!"; sleep 2;;
-4) downAlert; extras;;
-5) downText; extras;;
-6) delAlert;;
-7) delText;;
-8) main_menu;;
-9) clear; exit;;
+3) downAlert; extras;;
+4) downText; extras;;
+5) delAlert;;
+6) delText;;
+7) main_menu;;
+8) clear; exit;;
 *) clear; echo $divider; echo "Invalid option. Please choose another number."; echo $divider; sleep 1.5; extras;;
 esac
 }
@@ -511,46 +511,27 @@ esac
 main_menu(){
 alert_style=0
 only_updserver=0
-if [ -e /mtd_rwarea/adblock_profile ]; then
-	active_profile=$(cat /mtd_rwarea/adblock_profile)
-else
-	active_profile=0
-fi
+
+active_profile=$(grep "[A]ctive_profile" /mtd_rwarea/hosts | cut -d: -f 2)
+
 clear
 echo $divider
 echo "-                    SmartAdblock 4.0 | lekron                    -"
 echo $divider
 echo "-       Master = Main list | [G]ambling | [P]orn | [S]ocial       -"
 echo $divider
-
-#case $active_profile in
-#	1)echo " 1) Master [ACTIVE]"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	2)echo " 1) Master"; echo " 2) Master + G [ACTIVE]"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	3)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P [ACTIVE]"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	4)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S [ACTIVE]"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	5)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P [ACTIVE]"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	6)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S [ACTIVE]"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	7)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S [ACTIVE]"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	8)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S [ACTIVE]"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	9)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight [ACTIVE]"; echo $divider; echo "10) Only Block Samsungs Update Servers";;
-#	*)echo " 1) Master"; echo " 2) Master + G"; echo " 3) Master + P"; echo " 4) Master + S"; echo " 5) Master + G + P"; echo " 6) Master + G + S"; echo " 7) Master + P + S"; echo " 8) Master + G + P + S"; echo $divider; echo " 9) Lightweight"; echo $divider; echo "10) Only Block Samsungs Update Servers [ACTIVE]";;
-#esac
-
-echo -n " 1) Master"; if [ $active_profile -eq 1 ]; then echo " [ACTIVE]"; else echo ""				#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG start | evtl. sogar in funktion auslagern und nur diese aufrufen
-echo -n " 2) Master + G"; if [ $active_profile -eq 2 ]; then echo " [ACTIVE]"; else echo ""
-echo -n " 3) Master + P"; if [ $active_profile -eq 3 ]; then echo " [ACTIVE]"; else echo ""
-echo -n " 4) Master + S"; if [ $active_profile -eq 4 ]; then echo " [ACTIVE]"; else echo ""
-echo -n " 5) Master + G + P"; if [ $active_profile -eq 5 ]; then echo " [ACTIVE]"; else echo ""
-echo -n " 6) Master + G + S"; if [ $active_profile -eq 6 ]; then echo " [ACTIVE]"; else echo ""
-echo -n " 7) Master + P + S"; if [ $active_profile -eq 7 ]; then echo " [ACTIVE]"; else echo ""
-echo -n " 8) Master + G + P + S"; if [ $active_profile -eq 8 ]; then echo " [ACTIVE]"; else echo ""
+echo -n " 1) Master"; if [ $active_profile -eq 1 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 2) Master + G"; if [ $active_profile -eq 2 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 3) Master + P"; if [ $active_profile -eq 3 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 4) Master + S"; if [ $active_profile -eq 4 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 5) Master + G + P"; if [ $active_profile -eq 5 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 6) Master + G + S"; if [ $active_profile -eq 6 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 7) Master + P + S"; if [ $active_profile -eq 7 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n " 8) Master + G + P + S"; if [ $active_profile -eq 8 ]; then echo " [ACTIVE]"; else echo ""; fi
 echo $divider
-echo -n " 9) Lightweight"; if [ $active_profile -eq 9 ]; then echo " [ACTIVE]"; else echo ""
+echo -n " 9) Lightweight"; if [ $active_profile -eq 9 ]; then echo " [ACTIVE]"; else echo ""; fi
 echo $divider
-echo -n "10) Only Block Samsungs Update Servers"; if [ $active_profile -eq 10 ]; then echo " [ACTIVE]"; else echo ""		#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG ende
-
-#echo $divider
-#echo "10) Lightweight (use if you have some kind of problems)"
+echo -n "10) Only Block Samsungs Update Servers"; if [ $active_profile -eq 10 ]; then echo " [ACTIVE]"; else echo ""; fi
 echo $divider
 echo "11) Extras"
 echo $divider
@@ -559,9 +540,11 @@ echo $divider
 echo -n "13) Exit"
 testvar=$(grep -c "/etc/hosts" /proc/mounts)
 if [ $testvar -gt 0 ]; then
-	echo "                                          [Hosts: Mounted!]"						#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG durch tabs vllt austauschen
+	#echo "                                          [Hosts: Mounted!]"
+	echo "											[Hosts: Mounted!]"
 else
-	echo "                                        [Hosts: Unmounted!]"
+	#echo "                                        [Hosts: Unmounted!]"
+	echo "										  [Hosts: Unmounted!]"
 fi
 echo $divider
 echo -n "Your choice: " && read num
@@ -593,7 +576,7 @@ if [ -e /mnt/etc/init.d/02_05_adblock.init ]; then
 	sleep 0.1
 	echo "Done!"
 fi
-isActive					#DEBUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG
+isActive
 if [ -e /mtd_rwarea/hosts ]; then
 	echo $divider
 	echo -n "Deleting /mtd_rwarea/hosts.. "
@@ -758,6 +741,7 @@ else
 	sleep 0.2
 	echo -n "Writing server list to /mtd_rwarea/hosts.. "
 	blockUpdate
+	appendActiveProfile
 	echo "Done!"
 	echo $divider
 	sleep 1
@@ -770,6 +754,7 @@ if [ $only_updserver == '0' ]; then
 	echo $divider
 	echo -n "Adding Samsung update servers.. "
 	blockUpdate
+	appendActiveProfile
 	echo "Done!"
 fi
 case $alert_style in
@@ -799,6 +784,7 @@ esac
 }
 
 clear
+called_from_extras = 0
 checkUpdate
 while true; do
 	main_menu
