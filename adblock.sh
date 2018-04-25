@@ -3,8 +3,8 @@
 # This script helps you to block ads on your SmartTv
 # Created by lekron @ SamyGO Forums
 #----------------------------------------------------
-# Version:4.0
-# Date:03/07/2018
+# Version:4.1
+# Date:04/25/2018
 #----------------------------------------------------
 # Credit goes to Github user BenBaltz who
 # created the original hosts files!
@@ -474,7 +474,7 @@ fi
 extras(){
 clear
 echo $divider
-echo "-                    SmartAdblock 4.0 | lekron                    -"
+echo "-                    SmartAdblock 4.1 | lekron                    -"
 echo $divider
 echo "-                              Extras                             -"
 echo $divider
@@ -507,11 +507,16 @@ main_menu(){
 alert_style=0
 only_updserver=0
 
-active_profile=$(grep "[A]ctive_profile" /mtd_rwarea/hosts | cut -d: -f 2)
-
+is_active=$(grep -c "[A]ctive_profile" /mtd_rwarea/hosts)
+if [ $is_active -gt 0 ]; then
+	active_profile=$(grep "[A]ctive_profile" /mtd_rwarea/hosts | cut -d: -f 2)
+else
+	active_profile=0
+fi
+	
 clear
 echo $divider
-echo "-                    SmartAdblock 4.0 | lekron                    -"
+echo "-                    SmartAdblock 4.1 | lekron                    -"
 echo $divider
 echo "-       Master = Main list | [G]ambling | [P]orn | [S]ocial       -"
 echo $divider
@@ -526,7 +531,7 @@ echo -n " 8) Master + G + P + S"; if [ $active_profile -eq 8 ]; then echo " [ACT
 echo $divider
 echo -n " 9) Lightweight"; if [ $active_profile -eq 9 ]; then echo " [ACTIVE]"; else echo ""; fi
 echo $divider
-echo -n "10) Only Block Samsungs Update Servers"; if [ $active_profile -eq 10 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n "10) Only Block Samsungs Update Servers (included in 1-9)"; if [ $active_profile -eq 10 ]; then echo " [ACTIVE]"; else echo ""; fi
 echo $divider
 echo "11) Extras"
 echo $divider
@@ -598,7 +603,8 @@ overwrite="y"
 if [ -e /mnt/etc/init.d/02_05_adblock.init ]; then
 	clear
 	echo $divider
-	echo "Init.d script already active! Do you want to overwrite it? (y/n)"
+	#echo "Init.d script already active! Do you want to overwrite it? (y/n)"
+	echo "Do you want to change your startup preferences? (y/n)"
 	echo -n "Choice: " && read overwrite
 	echo $divider
 fi
@@ -664,7 +670,7 @@ case $overwrite in
 	*)
 	clear
 	echo $divider
-	echo "Init.d script not overwriteritten!"
+	echo "Init.d script not overwritten!"
 	echo $divider
 	sleep 0.3
 	;;
