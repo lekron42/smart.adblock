@@ -1,5 +1,4 @@
-Changelog v4.2
-
-- Added changelog functionality
-- Fixed few possible errors
-- Code optimizations
+Changelog v4.2\n
+- Added changelog functionality\n
+- Fixed few possible errors\n
+- Code optimizations\n
