@@ -3,8 +3,8 @@
 # This script helps you to block ads on your SmartTv
 # Created by lekron @ SamyGO Forums
 #----------------------------------------------------
-# Version:4.1
-# Date:04/25/2018
+# Version:4.2
+# Date:05/24/2018
 #----------------------------------------------------
 # Credit goes to Github user BenBaltz who
 # created the original hosts files!
@@ -13,6 +13,7 @@
 # please contact me on SamyGO forums
 #----------------------------------------------------
 divider="-------------------------------------------------------------------"
+header="-                    SmartAdblock 4.2 | lekron                    -"
 
 appendActiveProfile(){
 echo "" >> /mtd_rwarea/hosts
@@ -377,7 +378,7 @@ if [ ! -e /mtd_rwcommon/libText.so ] || [ ! -e /mtd_rwcommon/font1.raw ] || [ ! 
 		y|Y)echo $divider; echo "You should now see a popup on TV.."; sleep 0.5; samyGOso -d -A -B -l /mtd_rwcommon/libText.so TEXT:'It works!' FONT:2 CENTER:2 COLOR:0x07f74f TIMEOUT:5 &> /dev/null; sleep 2;;
 		*);;
 	esac
-	else
+else
 	echo "libText already installed!"
 	echo $divider
 	sleep 1.5
@@ -443,13 +444,45 @@ version=$(grep "[V]ersion:" $filepath | cut -d: -f 2)
 mainv=$(echo $version | cut -d. -f 1)
 subv=$(echo $version | cut -d. -f 2)
 curl -kso /tmp/current_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/current_version"
+
+
 if [ -e /tmp/current_version ]; then
-	currentMain=$(cat /tmp/current_version | cut -d. -f 1)
-	currentSub=$(cat /tmp/current_version | cut -d. -f 2)
+	not_found=$(grep -c "404" /tmp/current_version)
+	if [ ! $not_found -gt 0 ]; then
+		currentMain=$(cat /tmp/current_version | cut -d. -f 1)
+		currentSub=$(cat /tmp/current_version | cut -d. -f 2)
+	else
+		currentMain=0
+		currentSub=0
+	fi
 	rm /tmp/current_version
+else
+	currentMain=0
+	currentSub=0
 fi
+
+
+curl -kso /tmp/ab_chnglg "https://raw.githubusercontent.com/lekron42/smart.adblock/master/changelog.txt"
+if [ -e /tmp/ab_chnglg ]; then
+	not_found=$(grep -c "404" /tmp/ab_chnglg)
+	if [ ! $not_found -gt 0 ]; then
+		changelog=$(cat /tmp/ab_chnglg )
+	else
+		changelog="There was an error retrieving changelog.."
+	fi
+	rm /tmp/ab_chnglg
+else
+	changelog="There was an error retrieving changelog.."
+fi
+
+clear
+
 if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt $currentMain ]; then
-	echo "There is a new version avalailable ($mainv.$subv -> $currentMain.$currentSub)! Download now? (y/n)"
+	echo "There is a new version avalailable! ($mainv.$subv -> $currentMain.$currentSub)"
+	echo "----------------- Changelog ------------------"
+	echo "$changelog"
+	echo "----------------------------------------------"
+	echo "Download now? (y/n)"
 	echo -n "Choice: " && read yn
 	case $yn in
 		y|Y)
@@ -462,6 +495,14 @@ if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt 
 			;;
 	esac
 	called_from_extras=0
+elif [ $currentMain -eq 0 ] || [ $currentSub -eq 0 ]; then
+	echo "There was an error while looking for the current version!"
+	echo "Do you want to try again? (y/n)"
+	echo -n "Choice: " && read retry
+	case $retry in
+		y|Y) checkUpdate;;
+		*);;
+	esac
 else
 	if [ $called_from_extras -eq 1 ]; then
 		called_from_extras=0
@@ -474,7 +515,7 @@ fi
 extras(){
 clear
 echo $divider
-echo "-                    SmartAdblock 4.1 | lekron                    -"
+echo "$header"
 echo $divider
 echo "-                              Extras                             -"
 echo $divider
@@ -506,17 +547,16 @@ esac
 main_menu(){
 alert_style=0
 only_updserver=0
-
-is_active=$(grep -c "[A]ctive_profile" /mtd_rwarea/hosts)
+is_active=$(grep -c "[A]ctive_profile" /etc/hosts)
 if [ $is_active -gt 0 ]; then
-	active_profile=$(grep "[A]ctive_profile" /mtd_rwarea/hosts | cut -d: -f 2)
+	active_profile=$(grep "[A]ctive_profile" /etc/hosts | cut -d: -f 2)
 else
 	active_profile=0
 fi
 	
 clear
 echo $divider
-echo "-                    SmartAdblock 4.1 | lekron                    -"
+echo "$header"
 echo $divider
 echo "-       Master = Main list | [G]ambling | [P]orn | [S]ocial       -"
 echo $divider
@@ -603,7 +643,6 @@ overwrite="y"
 if [ -e /mnt/etc/init.d/02_05_adblock.init ]; then
 	clear
 	echo $divider
-	#echo "Init.d script already active! Do you want to overwrite it? (y/n)"
 	echo "Do you want to change your startup preferences? (y/n)"
 	echo -n "Choice: " && read overwrite
 	echo $divider
@@ -678,12 +717,14 @@ esac
 clear
 echo $divider
 if [ $only_updserver == '0' ]; then
-	echo -n "Downloading hosts file. This can take a while. Please wait.. "
+	echo "Downloading hosts file. This can take a while. Please wait.. "
+	echo $divider
 	if [ $lightweight == '1' ]; then
-		curl -kso /tmp/hosts "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+		curl -#ko /tmp/hosts "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 	else
-		curl -kso /tmp/hosts "https://raw.githubusercontent.com/lekron42/smart.adblock/master/hosts-$CH.txt"
+		curl -#ko /tmp/hosts "https://raw.githubusercontent.com/lekron42/smart.adblock/master/hosts-$CH.txt"
 	fi
+	echo $divider
 	echo "Done!"
 	echo $divider
 	isActive
@@ -726,8 +767,6 @@ echo -n "Mounting new hosts file to /etc/hosts.. "
 sleep 0.3
 /bin/mount -o bind /mtd_rwarea/hosts /etc/hosts
 echo "Done!"
-echo $AP > /mtd_rwarea/adblock_profile
-chmod 644 /mtd_rwarea/adblock_profile
 echo $divider
 echo "Hosts file activated!"
 echo $divider
