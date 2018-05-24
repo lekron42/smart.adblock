@@ -2,3 +2,4 @@ Changelog v4.2
 - Added changelog functionality
 - Fixed few possible errors
 - Code optimizations
+- Added download progress bar
