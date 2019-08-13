@@ -1,5 +1,5 @@
-Changelog v4.2
-- Added changelog functionality
-- Fixed few possible errors
-- Code optimizations
-- Added download progress bar
+Changelog v5.0
+- This is the final version
+- Old hosts files are too big
+  and can cause troubles
+- Switched to better sources
