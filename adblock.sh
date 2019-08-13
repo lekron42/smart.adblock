@@ -486,13 +486,13 @@ if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt 
 			;;
 	esac
 	called_from_extras=0
-elif [ $currentMain -eq 0 ] || [ $currentSub -eq 0 ]; then
+elif [ $currentMain -eq 0 ] && [ $currentSub -eq 0 ]; then
 	echo "There was an error looking for the current version!"
 	echo "Do you want to try again? (Y/n)"
 	echo -n "Choice: " && read retry
 	case $retry in
 		n|N);;
-		*) checkUpdate;;
+		*) check_update;;
 	esac
 else
 	if [ $called_from_extras -eq 1 ]; then
