@@ -3,22 +3,14 @@
 # This script helps you to block ads on your SmartTv
 # Created by lekron @ SamyGO Forums
 #----------------------------------------------------
-# Version:4.2
-# Date:05/24/2018
-#----------------------------------------------------
-# Credit goes to Github user BenBaltz who
-# created the original hosts files!
+# Version:5.0
+# Date:08/14/2019
 #----------------------------------------------------
 # If you have any questions or found a bug
 # please contact me on SamyGO forums
 #----------------------------------------------------
 divider="-------------------------------------------------------------------"
-header="-                    SmartAdblock 4.2 | lekron                    -"
-
-appendActiveProfile(){
-echo "" >> /mtd_rwarea/hosts
-echo "#Active_profile:$AP" >> /mtd_rwarea/hosts
-}
+header="-                 SmartAdblock 5.0 final | lekron                 -"
 
 createInit(){
 echo $divider
@@ -27,7 +19,7 @@ echo "#!/bin/sh
 #
 # Startup script to block ad servers
 # Created by lekron @ SamyGO Forums
-# 
+#
 . /dtv/SGO.env
 
 
@@ -40,7 +32,7 @@ stop_bootloop()
 }
 
 
-case \$1 in 
+case \$1 in
 	start)
 	stop_bootloop
 	/bin/mount -o bind /mtd_rwarea/hosts /etc/hosts
@@ -72,7 +64,7 @@ echo "#!/bin/sh
 #
 # Startup script to block ad servers
 # Created by lekron @ SamyGO Forums
-# 
+#
 . /dtv/SGO.env
 
 SODIR=\$SYSROOT/opt/privateer/usr/libso
@@ -87,7 +79,7 @@ stop_bootloop()
 }
 
 
-case \$1 in 
+case \$1 in
 	start)
 	stop_bootloop
 	/bin/mount -o bind /mtd_rwarea/hosts /etc/hosts
@@ -120,7 +112,7 @@ echo "#!/bin/sh
 #
 # Startup script to block ad servers
 # Created by lekron @ SamyGO Forums
-# 
+#
 . /dtv/SGO.env
 
 SODIR=\$SYSROOT/opt/privateer/usr/libso
@@ -134,7 +126,7 @@ stop_bootloop()
 }
 
 
-case \$1 in 
+case \$1 in
 	start)
 	stop_bootloop
 	/bin/mount -o bind /mtd_rwarea/hosts /etc/hosts
@@ -167,7 +159,7 @@ echo "#!/bin/sh
 #
 # Startup script to block ad servers
 # Created by lekron @ SamyGO Forums
-# 
+#
 . /dtv/SGO.env
 
 SODIR=\$SYSROOT/opt/privateer/usr/libso
@@ -181,7 +173,7 @@ stop_bootloop()
 }
 
 
-case \$1 in 
+case \$1 in
 	start)
 	stop_bootloop
 	/bin/mount -o bind /mtd_rwarea/hosts /etc/hosts
@@ -210,6 +202,7 @@ echo "Done!"
 blockUpdate(){
 if [ $only_updserver == '1' ]; then
 echo "# This file blocks Samsungs update servers
+#Pack: E5UPD-P
 127.0.0.1 localhost
 0.0.0.0 samsungads.com
 0.0.0.0 ads.samsungads.com
@@ -261,7 +254,7 @@ echo $divider
 lText(){
 clear
 echo $divider
-echo "Do you want to customize the settings for libText? (y/n)"
+echo "Do you want to customize the settings for libText? (y/N)"
 echo "Otherwise default config is used:"
 echo "Center Bottom, Green Text, 4 secs timeout"
 echo "(Only advanced users should choose \"y\")"
@@ -329,11 +322,11 @@ if [ ! -e /mnt/opt/privateer/usr/libso/libAlert.so ]; then
 	sleep 0.2
 	echo "Done!"
 	echo $divider
-	echo "Do you want to test if libAlert is correctly installed? (y/n)"
+	echo "Do you want to test if libAlert is correctly installed? (Y/n)"
 	echo -n "Choice: " && read test
 	case $test in
-		y|Y)echo $divider; echo "You should now see a popup on TV.."; sleep 0.5; samyGOso -d -A -B -l /mnt/opt/privateer/usr/libso/libAlert.so TEXT:"It works!" &> /dev/null; sleep 2;;
-		*);;
+		n|N);;
+		*)echo $divider; echo "You should now see a popup on TV.."; sleep 0.5; samyGOso -d -A -B -l /mnt/opt/privateer/usr/libso/libAlert.so TEXT:"It works!" &> /dev/null; sleep 2;;
 	esac
 else
 	echo "libAlert already installed!"
@@ -372,11 +365,11 @@ if [ ! -e /mtd_rwcommon/libText.so ] || [ ! -e /mtd_rwcommon/font1.raw ] || [ ! 
 	sleep 0.2
 	echo "Done!"
 	echo $divider
-	echo "Do you want to test if libText is correctly installed? (y/n)"
+	echo "Do you want to test if libText is correctly installed? (Y/n)"
 	echo -n "Choice: " && read test
 	case $test in
-		y|Y)echo $divider; echo "You should now see a popup on TV.."; sleep 0.5; samyGOso -d -A -B -l /mtd_rwcommon/libText.so TEXT:'It works!' FONT:2 CENTER:2 COLOR:0x07f74f TIMEOUT:5 &> /dev/null; sleep 2;;
-		*);;
+		n|N);;
+		*)echo $divider; echo "You should now see a popup on TV.."; sleep 0.5; samyGOso -d -A -B -l /mtd_rwcommon/libText.so TEXT:'It works!' FONT:2 CENTER:2 COLOR:0x07f74f TIMEOUT:5 &> /dev/null; sleep 2;;
 	esac
 else
 	echo "libText already installed!"
@@ -389,15 +382,15 @@ fi
 delAlert(){
 clear
 echo $divider
-if [ ! -e /mnt/opt/privateer/usr/libso/libAlert.so ]; then
-	echo "libAlert not installed!"
+if [ -e /mnt/opt/privateer/usr/libso/libAlert.so ]; then
+	echo -n "Deleting libAlert.. "
+	rm -f /mnt/opt/privateer/usr/libso/libAlert.so
+	echo "Done!"
 	echo $divider
 	sleep 1.5
 	extras
 else
-	echo -n "Deleting libAlert.. "
-	rm -f /mnt/opt/privateer/usr/libso/libAlert.so
-	echo "Done!"
+	echo "libAlert not installed!"
 	echo $divider
 	sleep 1.5
 	extras
@@ -407,16 +400,16 @@ fi
 delText(){
 clear
 echo $divider
-if [ ! -e /mtd_rwcommon/libText.so ]; then
-	echo "libText not installed!"
-	echo $divider
-	sleep 1.5
-	extras
-else
+if [ -e /mtd_rwcommon/libText.so ]; then
 	echo -n "Deleting libText.. "
 	rm -f /mtd_rwcommon/libText.so
 	rm -f /mtd_rwcommon/font*.raw
 	echo "Done!"
+	echo $divider
+	sleep 1.5
+	extras
+else
+	echo "libText not installed!"
 	echo $divider
 	sleep 1.5
 	extras
@@ -434,17 +427,16 @@ if [ $hosts_size -gt 500 ]; then
 fi
 }
 
-checkUpdate(){
+check_update(){
 clear
 echo "=================================="
-echo "Checking for Update, please wait.."
+echo "Checking for update, please wait.."
 echo "=================================="
 filepath="$(dirname $(readlink -f $0))/$(basename $0)"
 version=$(grep "[V]ersion:" $filepath | cut -d: -f 2)
 mainv=$(echo $version | cut -d. -f 1)
 subv=$(echo $version | cut -d. -f 2)
 curl -kso /tmp/current_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/current_version"
-
 
 if [ -e /tmp/current_version ]; then
 	not_found=$(grep -c "404" /tmp/current_version)
@@ -460,7 +452,6 @@ else
 	currentMain=0
 	currentSub=0
 fi
-
 
 curl -kso /tmp/ab_chnglg "https://raw.githubusercontent.com/lekron42/smart.adblock/master/changelog.txt"
 if [ -e /tmp/ab_chnglg ]; then
@@ -482,26 +473,26 @@ if ( [ $mainv -eq $currentMain ] && [ $subv -lt $currentSub ] ) || [ $mainv -lt 
 	echo "----------------- Changelog ------------------"
 	echo "$changelog"
 	echo "----------------------------------------------"
-	echo "Download now? (y/n)"
+	echo "Download now? (Y/n)"
 	echo -n "Choice: " && read yn
 	case $yn in
-		y|Y)
+		n|N)
+			;;
+		*)
 			curl -kso /tmp/new_version "https://raw.githubusercontent.com/lekron42/smart.adblock/master/adblock.sh"
 			mv /tmp/new_version $filepath
 			echo "Update was successful! Please re-run the script.."
 			exit 0
 			;;
-		*)
-			;;
 	esac
 	called_from_extras=0
 elif [ $currentMain -eq 0 ] || [ $currentSub -eq 0 ]; then
-	echo "There was an error while looking for the current version!"
-	echo "Do you want to try again? (y/n)"
+	echo "There was an error looking for the current version!"
+	echo "Do you want to try again? (Y/n)"
 	echo -n "Choice: " && read retry
 	case $retry in
-		y|Y) checkUpdate;;
-		*);;
+		n|N);;
+		*) checkUpdate;;
 	esac
 else
 	if [ $called_from_extras -eq 1 ]; then
@@ -509,6 +500,20 @@ else
 		echo "You already have the newest version installed!"
 		sleep 1
 	fi
+fi
+}
+
+check_pack(){
+if grep -q "E5P4RK-P" /etc/hosts; then
+	active_filter=1
+elif grep -q "E8LUG0-P" /etc/hosts; then
+	active_filter=2
+elif grep -q "E8LU-P" /etc/hosts; then
+	active_filter=3
+elif grep -q "E5UPD-P" /etc/hosts; then
+	active_filter=4
+else
+	active_filter=0
 fi
 }
 
@@ -530,10 +535,10 @@ echo $divider
 echo "6) Main menu"
 echo "7) Exit"
 echo $divider
-echo -n "Choice: " && read choice 
+echo -n "Choice: " && read choice
 
 case $choice in
-1) called_from_extras=1; checkUpdate; extras;;
+1) called_from_extras=1; check_update; extras;;
 2) downAlert; extras;;
 3) downText; extras;;
 4) delAlert;;
@@ -547,37 +552,23 @@ esac
 main_menu(){
 alert_style=0
 only_updserver=0
-is_active=$(grep -c "[A]ctive_profile" /etc/hosts)
-if [ $is_active -gt 0 ]; then
-	active_profile=$(grep "[A]ctive_profile" /etc/hosts | cut -d: -f 2)
-else
-	active_profile=0
-fi
-	
+
+check_pack
+
 clear
 echo $divider
 echo "$header"
 echo $divider
-echo "-       Master = Main list | [G]ambling | [P]orn | [S]ocial       -"
+echo -n "1) Spark (Size: ~1.3M)"; if [ $active_filter -eq 1 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n "2) BluGo (Size: ~3.6M)"; if [ $active_filter -eq 2 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n "3) Blu   (Size: ~6.7M)"; if [ $active_filter -eq 3 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo -n "4) Only block Samsung update servers (included in 1-3)"; if [ $active_filter -eq 4 ]; then echo " [ACTIVE]"; else echo ""; fi
 echo $divider
-echo -n " 1) Master"; if [ $active_profile -eq 1 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 2) Master + G"; if [ $active_profile -eq 2 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 3) Master + P"; if [ $active_profile -eq 3 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 4) Master + S"; if [ $active_profile -eq 4 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 5) Master + G + P"; if [ $active_profile -eq 5 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 6) Master + G + S"; if [ $active_profile -eq 6 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 7) Master + P + S"; if [ $active_profile -eq 7 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo -n " 8) Master + G + P + S"; if [ $active_profile -eq 8 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo "5) Extras"
 echo $divider
-echo -n " 9) Lightweight"; if [ $active_profile -eq 9 ]; then echo " [ACTIVE]"; else echo ""; fi
+echo "6) Disable Adblock"
 echo $divider
-echo -n "10) Only Block Samsungs Update Servers (included in 1-9)"; if [ $active_profile -eq 10 ]; then echo " [ACTIVE]"; else echo ""; fi
-echo $divider
-echo "11) Extras"
-echo $divider
-echo "12) Disable Adblock"
-echo $divider
-echo -n "13) Exit"
+echo -n "7) Exit"
 testvar=$(grep -c "/etc/hosts" /proc/mounts)
 if [ $testvar -gt 0 ]; then
 	echo "                                          [Hosts: Mounted!]"
@@ -588,19 +579,13 @@ echo $divider
 echo -n "Your choice: " && read num
 echo $divider
 case $num in
-	1) CH="master"; AP=1; process;;
-	2) CH="g"; AP=2; process;;
-	3) CH="p"; AP=3; process;;
-	4) CH="s"; AP=4; process;;
-	5) CH="gp"; AP=5; process;;
-	6) CH="gs"; AP=6; process;;
-	7) CH="ps"; AP=7; process;;
-	8) CH="gps"; AP=8; process;;
-	9) lightweight=1; AP=9; process;;
-	10) only_updserver=1; AP=10; process;;
-	11) extras;;
-	12) deactivate;;
-	13) clear; exit 0;;
+	1) filter="spark"; filter_id=1; process;;
+	2) filter="bluGo"; filter_id=2; process;;
+	3) filter="blu"; filter_id=3; process;;
+	4) only_updserver=1; filter_id=4; process;;
+	5) extras;;
+	6) deactivate;;
+	7) clear; exit 0;;
 	*) clear; echo $divider; echo "Invalid option. Please choose another number."; echo $divider; sleep 2;;
 esac
 }
@@ -643,17 +628,19 @@ overwrite="y"
 if [ -e /mnt/etc/init.d/02_05_adblock.init ]; then
 	clear
 	echo $divider
-	echo "Do you want to change your startup preferences? (y/n)"
+	echo "Do you want to change your startup preferences? (y/N)"
 	echo -n "Choice: " && read overwrite
 	echo $divider
 fi
 case $overwrite in
 	y|Y)
-	if [ -e /mnt/opt/privateer/usr/libso/libAlert.so ] && [ ! -e /mtd_rwcommon/libText.so ]; then
+	if [ -e /mnt/opt/privateer/usr/bin/libso/libAlert.so ] && [ ! -e /mtd_rwcommon/libText.so ]; then
 		clear
 		echo $divider
 		echo "It seems you have libAlert installed."
-		echo "Do you want to use an alert message on TV startup? (y/n)"
+		echo "To prevent freezes of the tv it is advised to not use the tv"
+		echo "until adblocking is enabled.."
+		echo "Do you want to see a message on startup? (y/N)"
 		echo -n "Choice: " && read alert
 		echo $divider
 		case $alert in
@@ -661,26 +648,30 @@ case $overwrite in
 			*) alert_style=1;;
 		esac
 		echo $divider
-	elif [ ! -e /mnt/opt/privateer/usr/libso/libAlert.so ] && [ -e /mtd_rwcommon/libText.so ]; then
+	elif [ ! -e /mnt/opt/privateer/usr/bin/libso/libAlert.so ] && [ -e /mtd_rwcommon/libText.so ]; then
 		clear
 		echo $divider
 		echo "It seems you have libText installed."
-		echo "Do you want to use an alert message on TV startup? (y/n)"
+		echo "To prevent freezes of the tv it is advised to not use the tv"
+		echo "until adblocking is enabled.."
+		echo "Do you want to see a message on startup? (y/N)"
 		echo -n "Choice: " && read alert
 		echo $divider
 		case $alert in
 			y|Y) lText;;
-			*) alert_style=1;;
+			*) alert_style=1
 		esac
 		echo $divider
-	elif [ -e /mnt/opt/privateer/usr/libso/libAlert.so ] && [ -e /mtd_rwcommon/libText.so ]; then	
+	elif [ -e /mnt/opt/privateer/usr/bin/libso/libAlert.so ] && [ -e /mtd_rwcommon/libText.so ]; then
 		clear
 		echo $divider
 		echo "It seems you have libAlert and libText installed."
-		echo "Which one do you want to use to get an alert message on TV startup?"
+		echo "To prevent freezes of the tv it is advised to not use the tv"
+		echo "until adblocking is enabled.."
+		echo "Which one do you want to use for an alert message on TV startup?"
 		echo "1) libAlert"
-		echo "2) libText"
-		echo "3) None"
+		echo "2) libText (recommended)"
+		echo "3) none"
 		echo -n "Choice: " && read alert
 		echo $divider
 		case $alert in
@@ -694,7 +685,9 @@ case $overwrite in
 		echo "You have neither libAlert nor libText installed.."
 		echo "With one of these libs installed you are able to activate an on-screen"
 		echo "popup on tv startup indicating that the adblocker has been activated."
-		echo "Do you want to download & install one of the libs?"
+		echo "To prevent freezes of the tv it is advised to not use the tv until"
+		echo "adblocking is enabled.."
+		echo "Do you want to download and install one of these libs?"
 		echo "1) libAlert"
 		echo "2) libText (recommended)"
 		echo "3) none"
@@ -716,14 +709,10 @@ case $overwrite in
 esac
 clear
 echo $divider
-if [ $only_updserver == '0' ]; then
+if [ $only_updserver == '0' ];then
 	echo "Downloading hosts file. This can take a while. Please wait.. "
 	echo $divider
-	if [ $lightweight == '1' ]; then
-		curl -#ko /tmp/hosts "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
-	else
-		curl -#ko /tmp/hosts "https://raw.githubusercontent.com/lekron42/smart.adblock/master/hosts-$CH.txt"
-	fi
+	curl -#ko /tmp/hosts "https://raw.githubusercontent.com/EnergizedProtection/block/master/$filter/formats/hosts"
 	echo $divider
 	echo "Done!"
 	echo $divider
@@ -740,7 +729,6 @@ else
 	sleep 0.2
 	echo -n "Writing server list to /mtd_rwarea/hosts.. "
 	blockUpdate
-	appendActiveProfile
 	echo "Done!"
 	echo $divider
 	sleep 1
@@ -753,7 +741,6 @@ if [ $only_updserver == '0' ]; then
 	echo $divider
 	echo -n "Adding Samsung update servers.. "
 	blockUpdate
-	appendActiveProfile
 	echo "Done!"
 fi
 case $alert_style in
@@ -782,8 +769,8 @@ esac
 
 clear
 called_from_extras=0
-checkUpdate
+check_update
+check_pack
 while true; do
-	lightweight=0
 	main_menu
 done
