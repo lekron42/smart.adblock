@@ -3,3 +3,4 @@ Changelog v5.0
 - Old hosts files are too big
   and can cause troubles
 - Switched to better sources
+- Smaller hosts file = better performance
