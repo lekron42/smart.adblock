@@ -3,14 +3,14 @@
 # This script helps you to block ads on your SmartTv
 # Created by lekron @ SamyGO Forums
 #----------------------------------------------------
-# Version:5.0
+# Version:5.1
 # Date:08/14/2019
 #----------------------------------------------------
 # If you have any questions or found a bug
 # please contact me on SamyGO forums
 #----------------------------------------------------
 divider="-------------------------------------------------------------------"
-header="-                 SmartAdblock 5.0 final | lekron                 -"
+header="-                 SmartAdblock 5.1 final | lekron                 -"
 
 createInit(){
 echo $divider
@@ -712,7 +712,7 @@ process(){
 	if [ $only_updserver == '0' ];then
 		echo "Downloading hosts file. This can take a while. Please wait.. "
 		echo $divider
-		curl -#ko /tmp/hosts "https://raw.githubusercontent.com/EnergizedProtection/block/master/$filter/formats/hosts"
+		curl -#ko /tmp/hosts "https://energized.pro/$filter/formats/hosts.txt"
 		echo $divider
 		echo "Done!"
 		echo $divider
